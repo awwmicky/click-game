@@ -1,0 +1,13 @@
+.board-game {
+    border: 2px solid black;
+    
+    display: grid;
+    grid-template: 
+        repeat(4, 1fr) / 
+        repeat(4, 1fr)
+    ;
+    
+    width: 400px;
+    height: 400px;
+    margin: 0 auto;
+}

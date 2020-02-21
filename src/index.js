@@ -3,6 +3,8 @@ import ReactDOM from 'react-dom'
 import React, { Component } from 'react'
 import data from './data.json'
 import './index.css'
+import Info from './components/Info/'
+import Game from './components/Game/'
 
 
 
@@ -14,43 +16,61 @@ class App extends Component {
     this.state = {
       user_score: 0,
       high_score: 0,
+      initLoss: false,
+      maxPoint: false,
       data: data
     };
   }
 
 
 
-  correctGuess = (item) => {
-    console.log('Previous Counter:', this.state.user_score)
-    let { user_score,high_score } = this.state;
+  maxScore = () => {
+    this.setState({ maxPoint : true })
+    window.open('https://shorturl.at/nuvAM')
+  };
 
-    item.clicked = true;
+  firstLoss = () => {
+    this.setState({ initLoss : true })
+    window.open('https://www.omfgdogs.com/')
+  };
+
+  correctGuess = (item) => {
+    console.log('Previous Score:', this.state.user_score)
+    let { user_score,high_score  } = this.state;
+
+    item.selected = true;
     (user_score < high_score) ? this.setState({ user_score : user_score + 1 }) :
     this.setState({ user_score: user_score + 1 , high_score: high_score + 1 });
+
+    return ((++high_score) === 16) ? this.maxScore() : null;
   };
 
   resetGame = () => {
     console.log('State:', this.state)
-    this.state.data.forEach( item => item.clicked = false )
+    let { initLoss,data } = this.state;
+
     this.setState({ user_score : 0 })
+    data.forEach( item => item.selected = false )
+    
+    return (initLoss === false) ? this.firstLoss() : null;
   };
 
   scoreBoard = ({ target }) => {
-    // console.log('Data:', this.state.data[target.getAttribute('data-id')])
-    let data = this.state.data[ target.getAttribute('data-id') ];
-    (data.clicked === false) ? this.correctGuess(data) : this.resetGame();
+    // console.log('Select:', this.state.data[target.getAttribute('data-id')])
+    let btn = this.state.data[ target.getAttribute('data-id') ];
+    (btn.selected === false) ? this.correctGuess(btn) : this.resetGame();
   };
 
   renderCard = (data) => {
     data.sort( () => Math.random() - 0.5 )
-    console.log('Data:', this.state.data)
+    // console.log('Data:', data)
 
     return data.map( (item, id) => (
       <button 
         key={id}
-        className={ `btn btn-${item.id}` }
         data-id={ id }
-        data-clicked={ item.clicked }
+        data-selected={ item.selected }
+        className={ `btn btn-${item.id}` }
         onClick={ this.scoreBoard }
       >{ item.num }
       </button>
@@ -60,35 +80,21 @@ class App extends Component {
 
 
   render () {
-    console.log('Current Counter:', this.state.user_score)
+    console.log('Current Score:', this.state.user_score)
     let { user_score,high_score,data } = this.state;
     let { renderCard } = this;
 
     return (
       <section className="App">
-        <div className="game-info">
-          <h1>Click Game</h1>
-          <p>
-            <span>RULES</span>
-            <br/>
-            <span>
-              1.) do not click the same button twice
-              <br/>
-              2.) must follow rule number one
-              <br/>
-              3.) you'll know if you do one and two
-            </span>
-          </p>
-          <p>
-            <span className="user-score">your score: { user_score }</span> 
-            <span> — </span>
-            <span className="high-score">high score: { high_score }</span>
-          </p>
-        </div>
+        <Info
+          user_score={ user_score }
+          high_score={ high_score }
+        />
 
-        <div className="board-game">
-          { renderCard(data) }
-        </div>
+        <Game
+          renderCard={ renderCard }
+          data={ data }
+        />
       </section>
     );
   }
