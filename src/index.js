@@ -1,7 +1,7 @@
 // import * as serviceWorker from './serviceWorker'
 import ReactDOM from 'react-dom'
 import React, { Component } from 'react'
-import data from './data.json'
+import db from './data.json'
 import './index.css'
 import Info from './components/Info/'
 import Game from './components/Game/'
@@ -16,54 +16,56 @@ class App extends Component {
     this.state = {
       user_score: 0,
       high_score: 0,
-      initLoss: false,
-      maxPoint: false,
-      data: data
+      init_lost: false,
+      max_point: false,
+      data: db
     };
   }
 
 
 
   maxScore = () => {
-    this.setState({ maxPoint : true })
-    window.open('https://shorturl.at/nuvAM')
+    this.setState({ max_point : true })
+    window.open('https://rebrand.ly/hackerman')
   };
 
-  firstLoss = () => {
-    this.setState({ initLoss : true })
+  initFail = () => {
+    this.setState({ init_lost : true })
     window.open('https://www.omfgdogs.com/')
   };
 
   correctGuess = (item) => {
     console.log('Previous Score:', this.state.user_score)
-    let { user_score,high_score  } = this.state;
+    let { user_score,high_score,data  } = this.state;
 
-    item.selected = true;
+    item.selected = true; // ???
+
     (user_score < high_score) ? this.setState({ user_score : user_score + 1 }) :
     this.setState({ user_score: user_score + 1 , high_score: high_score + 1 });
 
-    return ((++high_score) === 16) ? this.maxScore() : null;
+    console.log('match:', (++high_score),'—',data.length)
+    return ((high_score) === data.length) ? this.maxScore() : null;
   };
 
   resetGame = () => {
     console.log('State:', this.state)
-    let { initLoss,data } = this.state;
+    let { init_lost,data } = this.state;
 
     this.setState({ user_score : 0 })
     data.forEach( item => item.selected = false )
     
-    return (initLoss === false) ? this.firstLoss() : null;
+    return (init_lost === false) ? this.initFail() : null;
   };
 
   scoreBoard = ({ target }) => {
-    // console.log('Select:', this.state.data[target.getAttribute('data-id')])
     let btn = this.state.data[ target.getAttribute('data-id') ];
+    console.log('Select:', target.getAttribute('data-id'), btn);
     (btn.selected === false) ? this.correctGuess(btn) : this.resetGame();
   };
 
   renderCard = (data) => {
     data.sort( () => Math.random() - 0.5 )
-    // console.log('Data:', data)
+    console.log('Data:', data)
 
     return data.map( (item, id) => (
       <button 
